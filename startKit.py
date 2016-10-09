@@ -17,7 +17,7 @@ import matplotlib.pyplot as plt
 
 # In[2]:
 
-all = list(csv.reader(open("training.csv","rb"), delimiter=','))
+all = list(csv.reader(open("../train.csv","rb"), delimiter=','))
 
 
 # Slicing off header row and id, weight, and label columns.
@@ -103,7 +103,10 @@ weightsBalancedTrain = np.array([0.5 * weightsTrain[i]/sumSWeightsTrain
 numBins = 10
 
 
-# <code>logPs[fI,bI]</code> will be the log probability of a data point <code>x</code> with <code>binMaxs[bI - 1] < x[fI] <= binMaxs[bI]</code> (with <code>binMaxs[-1] = -</code>$\infty$ by convention) being a signal under uniform priors $p(\text{s}) = p(\text{b}) = 1/2$.
+# <code>logPs[fI,bI]</code> will be the log probability of a data point 
+# <code>x</code> with <code>binMaxs[bI - 1] < x[fI] <= binMaxs[bI]</code> 
+# (with <code>binMaxs[-1] = -</code>$\infty$ by convention) 
+# being a signal under uniform priors $p(\text{s}) = p(\text{b}) = 1/2$.
 
 # In[11]:
 
@@ -133,7 +136,10 @@ for fI in range(numFeatures):
         logPs[fI, bI] = math.log(wS/(wS+wB))
 
 
-# The score function we will use to sort the test examples. For readability it is shifted so negative means likely background (under uniform prior) and positive means likely signal. <code>x</code> is an input vector.
+# The score function we will use to sort the test examples. 
+# For readability it is shifted so negative means likely background 
+# (under uniform prior) and positive means likely signal. <code>x</code> is 
+# an input vector.
 
 # In[13]:
 
@@ -189,7 +195,8 @@ tIIs = validationScores.argsort()
 wFactor = 1.* numPoints / numPointsValidation
 
 
-# Initializing $s$ and $b$ to the full sum of weights, we start by having all points in the selectiom region.
+# Initializing $s$ and $b$ to the full sum of weights, we start by having all 
+# points in the selectiom region.
 
 # In[35]:
 
@@ -251,7 +258,7 @@ plt.plot(amss)
 
 # In[42]:
 
-test = list(csv.reader(open("test.csv", "rb"),delimiter=','))
+test = list(csv.reader(open("../test.csv", "rb"),delimiter=','))
 xsTest = np.array([map(float, row[1:]) for row in test[1:]])
 
 
