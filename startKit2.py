@@ -48,7 +48,7 @@ def save_submission(EventId, y_pred_proba, y_pred, file_name):
     """
     ranking = np.argsort(y_pred_proba)+1
     classes = np.array(['b', 's'])
-    y_pred = classes[y_pred]
+    y_pred = classes[y_pred.astype(int)]
     data = {'EventId':EventId,'RankOrder':ranking,'Class':y_pred}
 
     y_pred = pd.DataFrame(data=data)
@@ -152,6 +152,26 @@ def model_ensemble_cv(models, Xtrain, ytrain, Xtest, cv=3, random_state=0,
     
     return ypred, scores, x_test_pred, x_train_pred
     
+def cut_ams(y_pred_proba, th=85):
+    """Cut probability to signal and backgroud with threshold 
+    """
+    
+    cut = np.percentile(y_pred_proba, th)
+    y_pred = y_pred_proba>cut
+    
+    return y_pred
+    
+def search_th(y_pred_proba, y_train, weight, n_steps):
+    """Brute force search for the best threshold
+    """
+    ams_v = np.zeros((n_steps, ))
+    thresholds = np.arange(0, 100, 100.0/n_steps)
+    for i, th in enumerate(thresholds):
+        y_pred = cut_ams(y_pred_proba, th=th)
+        ams_v[i] = calc_ams(y_pred, y_train, weight, 1)
+        
+    return ams_v
+    
 if __name__ == '__main__':
     np.random.seed(0)
     x_train, y_train, weight, x_test, eventid_train, eventid_test = load_data()
@@ -185,9 +205,9 @@ if __name__ == '__main__':
 #    model = naive_bayes.GaussianNB()
 #    model = linear_model.LogisticRegression()
 #    model = ensemble.GradientBoostingClassifier(max_depth=9, verbose=10)
-    model = ensemble.ExtraTreesClassifier(n_estimators=400, random_state=0,
-        n_jobs=7, verbose=1, max_features=30, max_depth=12, 
-        min_samples_leaf=100, min_samples_split=100)
+#    model = ensemble.ExtraTreesClassifier(n_estimators=400, random_state=0,
+#        n_jobs=7, verbose=1, max_features=30, max_depth=12, 
+#        min_samples_leaf=100, min_samples_split=100)
 #    model = ensemble.RandomForestClassifier(n_estimators=500, n_jobs=8, 
 #        verbose=10)
 #    model.fit(x_train, y_train)
