@@ -28,7 +28,7 @@ if __name__ == '__main__':
     param['silent'] = 0
     param['nthread'] = 7
 
-    n_rounds = 3000
+    n_rounds = 3
     bst = xgb.train(param, train_mat)
     
     y_train_pred_proba = bst.predict(train_mat)
