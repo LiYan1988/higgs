@@ -3,6 +3,9 @@
 Created on Wed Oct 12 21:05:41 2016
 
 @author: lyaa
+
+ensemble of EXT: 3.33 (400 estimators)
+3.33509 (600 estimators)
 """
 
 from startKit2 import *
