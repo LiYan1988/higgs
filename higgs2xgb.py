@@ -28,9 +28,17 @@ if __name__ == '__main__':
     param['silent'] = 0
     param['nthread'] = 7
 
-    n_rounds = 3
+    n_rounds = 300
     bst = xgb.train(param, train_mat)
-    
     y_train_pred_proba = bst.predict(train_mat)
     
+    n_steps = 1000
+    ams_v = search_th(y_pred_proba, y_train, weight, n_steps)
+    plt.plot(ams_v)
     
+    th_opt = 100.0*np.argmax(ams_v)/n_steps
+    
+    y_test_pred_proba = model.predict_proba(x_test)[:,1]
+    y_test_pred = cut_ams(y_test_pred_proba, th_opt)
+    save_submission(eventid_test, y_test_pred_proba, y_test_pred,
+        '../XGB_submission.csv')
