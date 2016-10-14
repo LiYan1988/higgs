@@ -3,6 +3,8 @@
 Created on Thu Oct 13 09:07:18 2016
 
 @author: lyaa
+
+max_depth = 6, eta = 0.1, n_roungs = 120: 3.63302
 """
 
 from startKit2 import *
@@ -14,6 +16,7 @@ if __name__ == '__main__':
     x_train, x_test, X = data_processing(x_train, x_test)
     
     train_mat = xgb.DMatrix(data=x_train, label=y_train, weight=weight)
+    test_mat = xgb.DMatrix(data=x_test)
     
     sum_wpos = weight[y_train==1].sum()
     sum_wneg = weight[y_train==0].sum()
@@ -24,21 +27,22 @@ if __name__ == '__main__':
     param['scale_pos_weight'] = sum_wneg/sum_wpos
     param['eta'] = 0.1
     param['max_depth'] = 6
+    param['sub_sample'] = 0.9
     param['eval_metric'] = 'auc'
     param['silent'] = 0
     param['nthread'] = 7
 
-    n_rounds = 300
-    bst = xgb.train(param, train_mat)
-    y_train_pred_proba = bst.predict(train_mat)
+    n_rounds = 120
+    bst = xgb.train(param, train_mat, n_rounds)
+    x_train_pred_proba = bst.predict(train_mat)
     
     n_steps = 1000
-    ams_v = search_th(y_pred_proba, y_train, weight, n_steps)
+    ams_v = search_th(x_train_pred_proba, y_train, weight, n_steps)
     plt.plot(ams_v)
     
     th_opt = 100.0*np.argmax(ams_v)/n_steps
     
-    y_test_pred_proba = model.predict_proba(x_test)[:,1]
-    y_test_pred = cut_ams(y_test_pred_proba, th_opt)
-    save_submission(eventid_test, y_test_pred_proba, y_test_pred,
+    x_test_pred_proba = bst.predict(test_mat)
+    x_test_pred = cut_ams(x_test_pred_proba, th_opt)
+    save_submission(eventid_test, x_test_pred_proba, x_test_pred,
         '../XGB_submission.csv')

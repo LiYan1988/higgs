@@ -1,4 +1,5 @@
 1. On the forum it seems that feature engineering is not very useful in increasing AMS.
 2. EXT: 3.344
 3. CV ensemble EXT: 3.335
-4. 
+4. XGBoost works very well: max_depth = 6, eta = 0.1, n_roungs = 120: 3.63302
+5. Next step: combine xgboost with CV ensemble
