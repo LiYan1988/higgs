@@ -65,7 +65,10 @@ def data_processing(x_train, x_test):
         xc = X[c]
         xc_ave = np.mean(xc[xc!=-999])
         X[c].fillna(value=xc_ave, inplace=True)
+        if np.median(X[c])/np.std(X[c])>0.25 and (np.max(X[c])-np.min(X[c]))>7:
+            X['log'+c] = np.log(1-np.min(X[c])+X[c])
 
+    cols = X.columns
     X_scale = preprocessing.scale(X)
     X = pd.DataFrame(data=X_scale, columns=cols)
 
@@ -119,16 +122,15 @@ def model_ensemble(models, Xtrain, ytrain, Xtest, cv=3, random_state=0,
     
     return ypred, scores
     
-def model_ensemble_cv(models, Xtrain, ytrain, Xtest, cv=3, random_state=0, 
-                   model_g=None):
+def model_ensemble_cv(models, Xtrain, ytrain, Xtest, cv=3, random_state=0):
     """
     """
-    x_train_pred = np.zeros((Xtrain.shape[0], len(models)))
-    x_test_pred = np.zeros((Xtest.shape[0], len(models)*cv))
-    scores = np.zeros((len(models), cv))
+    x_train_pred_proba = np.zeros((Xtrain.shape[0], len(models)))
+    x_test_pred_proba = np.zeros((Xtest.shape[0], len(models)*cv))
+    scores_auc = np.zeros((len(models), cv))
     for i, model in enumerate(models):
         if type(random_state)==int:
-            rs = random_state
+            rs = np.random.randint(10000)
         else:
             rs = random_state[i]
         kf = model_selection.StratifiedKFold(n_splits=cv, shuffle=True,
@@ -136,21 +138,23 @@ def model_ensemble_cv(models, Xtrain, ytrain, Xtest, cv=3, random_state=0,
         k = 0
         for train_index, test_index in kf.split(Xtrain, ytrain):
             model.fit(Xtrain.iloc[train_index,:], ytrain.iloc[train_index])
-            x_train_pred[test_index, i] = \
+            x_train_pred_proba[test_index, i] = \
                 model.predict_proba(Xtrain.iloc[test_index, :])[:, 1]
-            x_test_pred[:, (i-1)*cv+k] = \
+            x_test_pred_proba[:, (i-1)*cv+k] = \
                 model.predict_proba(Xtest)[:, 1]
-            scores[i, k] = metrics.roc_auc_score(ytrain.iloc[test_index], 
-                x_train_pred[test_index, i])
+            scores_auc[i, k] = metrics.roc_auc_score(ytrain.iloc[test_index], 
+                x_train_pred_proba[test_index, i])
             k = k+1
-        
-    if model_g is not None:
-        model_g.fit(x_train_pred, ytrain)
-        ypred = model_g.predict(x_test_pred) # or predict_proba?
-    else:
-        ypred = np.mean(x_test_pred, axis=1)
-    
-    return ypred, scores, x_test_pred, x_train_pred
+
+# Since the sizes of x_train_pred_proba and x_test_pred_proba are not the same,
+# this may be a problem
+#    if model_g is not None:
+#        model_g.fit(x_train_pred_proba, ytrain)
+#        ypred = model_g.predict(x_test_pred_proba) # or predict_proba?
+#    else:
+#        ypred = np.mean(x_test_pred, axis=1)
+#    
+    return scores_auc, x_test_pred_proba, x_train_pred_proba
     
 def cut_ams(y_pred_proba, th=85):
     """Cut probability to signal and backgroud with threshold 
