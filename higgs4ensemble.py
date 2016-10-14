@@ -3,6 +3,8 @@
 Created on Wed Oct 12 21:05:41 2016
 
 @author: lyaa
+
+CV ensemble of EXT: 3.33
 """
 
 from startKit2 import *

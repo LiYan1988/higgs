@@ -3,6 +3,8 @@
 Created on Wed Oct 12 21:05:41 2016
 
 @author: lyaa
+
+EXT: 3.34410
 """
 
 from startKit2 import *
@@ -13,10 +15,6 @@ if __name__ == '__main__':
     np.random.seed(0)
     x_train, y_train, weight, x_test, eventid_train, eventid_test = load_data()
     x_train, x_test, X = data_processing(x_train, x_test)
-    x_train = x_train.ix[:10]
-    x_test = x_test.ix[:10]
-    y_train = y_train.ix[:10]
-    weight = weight.ix[:10]
     
     model = naive_bayes.GaussianNB()
     model = ensemble.ExtraTreesClassifier(n_estimators=400, random_state=0,
