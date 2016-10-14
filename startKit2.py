@@ -11,6 +11,7 @@ import math
 import copy
 from sklearn import (preprocessing, model_selection, naive_bayes,
                      linear_model, ensemble, metrics)
+import xgboost as xgb
 
 def load_data():
     x_train = pd.read_csv('../train.csv')
@@ -156,6 +157,42 @@ def model_ensemble_cv(models, Xtrain, ytrain, Xtest, cv=3, random_state=0):
 #    
     return scores_auc, x_test_pred_proba, x_train_pred_proba
     
+def xgb_ensemble_cv(param, n_rounds, N, Xtrain, ytrain, Xtest, weight,
+                    cv, random_state):
+    np.random.seed(random_state)
+    x_train_pred_proba = np.zeros((Xtrain.shape[0], N))
+    x_test_pred_proba = np.zeros((Xtest.shape[0], N*cv))
+    scores_auc = np.zeros((N, cv))
+    test_mat0 = xgb.DMatrix(data=Xtest)
+    for i in range(N):
+        rs = np.random.randint(10000)
+        kf = model_selection.StratifiedKFold(n_splits=cv, shuffle=True,
+            random_state=rs)
+        k = 0
+        for train_index, test_index in kf.split(Xtrain, ytrain):
+            print 'CV repetition {} round {} begins...'.format(i, k)
+            tmp_label = ytrain.iloc[train_index]
+            tmp_weight = weight.iloc[train_index]
+            sum_wpos = tmp_weight[tmp_label==1].sum()
+            sum_wneg = tmp_weight[tmp_label==0].sum()
+            
+            train_mat = xgb.DMatrix(data=Xtrain.iloc[train_index,:], 
+                label=tmp_label, weight=tmp_weight)
+            test_mat = xgb.DMatrix(data=Xtrain.iloc[test_index, :])
+            
+            param['scale_pos_weight'] = float(sum_wneg)/sum_wpos
+            bst = xgb.train(param, train_mat, n_rounds)
+            
+            x_train_pred_proba[test_index, i] = bst.predict(test_mat)
+            x_test_pred_proba[:, (i-1)*cv+k] = bst.predict(test_mat0)
+            scores_auc[i, k] = metrics.roc_auc_score(ytrain.iloc[test_index], 
+                x_train_pred_proba[test_index, i])
+            k = k+1
+            print 'CV repetition {} round {} finishes, AUC: {}'.format(i, k, 
+                scores_auc[i, k])
+            
+    return scores_auc, x_test_pred_proba, x_train_pred_proba
+            
 def cut_ams(y_pred_proba, th=85):
     """Cut probability to signal and backgroud with threshold 
     """
