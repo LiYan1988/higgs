@@ -187,9 +187,9 @@ def xgb_ensemble_cv(param, n_rounds, N, Xtrain, ytrain, Xtest, weight,
             x_test_pred_proba[:, (i-1)*cv+k] = bst.predict(test_mat0)
             scores_auc[i, k] = metrics.roc_auc_score(ytrain.iloc[test_index], 
                 x_train_pred_proba[test_index, i])
-            k = k+1
             print 'CV repetition {} round {} finishes, AUC: {}'.format(i, k, 
                 scores_auc[i, k])
+            k = k+1
             
     return scores_auc, x_test_pred_proba, x_train_pred_proba
             
