@@ -4,7 +4,8 @@ Created on Thu Oct 13 09:07:18 2016
 
 @author: lyaa
 
-max_depth = 6, eta = 0.1, n_roungs = 120: 3.63302
+max_depth = 6, eta = 0.1, n_rounds = 120: 3.63302
+max_depth = 9, eta = 0.01, n_rounds = 3000, sub_sample = 0.9: 3.67944
 """
 
 from startKit2 import *
@@ -25,14 +26,14 @@ if __name__ == '__main__':
     param['objective'] = 'binary:logistic'
     # scale weight of positive examples
     param['scale_pos_weight'] = sum_wneg/sum_wpos
-    param['eta'] = 0.1
-    param['max_depth'] = 6
+    param['eta'] = 0.01
+    param['max_depth'] = 9
     param['sub_sample'] = 0.9
     param['eval_metric'] = 'auc'
     param['silent'] = 0
     param['nthread'] = 7
 
-    n_rounds = 120
+    n_rounds = 3000
     bst = xgb.train(param, train_mat, n_rounds)
     x_train_pred_proba = bst.predict(train_mat)
     

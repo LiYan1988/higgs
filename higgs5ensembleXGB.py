@@ -9,6 +9,7 @@ max_depth = 6, eta = 0.1, n_roungs = 120: 3.63302
 
 from startKit2 import *
 import xgboost as xgb
+import matplotlib.pyplot as plt
 
 if __name__ == '__main__':
     np.random.seed(0)
@@ -25,16 +26,16 @@ if __name__ == '__main__':
     param['objective'] = 'binary:logistic'
     # scale weight of positive examples
     param['scale_pos_weight'] = sum_wneg/sum_wpos
-    param['eta'] = 0.1
-    param['max_depth'] = 6
+    param['eta'] = 0.01
+    param['max_depth'] = 9
     param['sub_sample'] = 0.9
     param['eval_metric'] = 'auc'
     param['silent'] = 0
     param['nthread'] = 7
-    n_rounds = 120
+    n_rounds = 3000
     N = 10
     cv = 2
-    random_state=0
+    random_state = 0
     
     scores_auc, x_test_pred_proba, x_train_pred_proba = \
         xgb_ensemble_cv(param, n_rounds, N, x_train, y_train, x_test, weight,
@@ -49,7 +50,6 @@ if __name__ == '__main__':
     
     th_opt = 100.0*np.argmax(ams_v)/n_steps
     
-    x_test_pred_proba = bst.predict(test_mat)
     x_test_pred = cut_ams(x_test_pred_proba, th_opt)
     save_submission(eventid_test, x_test_pred_proba, x_test_pred,
         '../XGB_submission.csv')
