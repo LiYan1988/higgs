@@ -34,7 +34,7 @@ if __name__ == '__main__':
     param['sub_sample'] = 0.9
     param['eval_metric'] = 'auc'
     param['silent'] = 0
-    param['nthread'] = 7
+    param['nthread'] = 8
     n_rounds = 3000
     N = 10
     cv = 2
@@ -42,7 +42,7 @@ if __name__ == '__main__':
     
     scores_auc, x_test_pred_proba, x_train_pred_proba = \
         xgb_ensemble_cv(param, n_rounds, N, x_train, y_train, x_test, weight,
-        cv, random_state)
+        cv, random_state, 'xgbEnsemble_test')
     
     x_test_pred_proba = np.mean(x_test_pred_proba, axis=1)
     x_train_pred_proba = np.mean(x_train_pred_proba, axis=1)
@@ -55,4 +55,4 @@ if __name__ == '__main__':
     
     x_test_pred = cut_ams(x_test_pred_proba, th_opt)
     save_submission(eventid_test, x_test_pred_proba, x_test_pred,
-        '../XGB_submission.csv')
+        '../CVEnsembleXGB_submission.csv')

@@ -9,6 +9,8 @@ import pandas as pd
 import numpy as np
 import math
 import copy
+import cPickle as pickle
+import os
 from sklearn import (preprocessing, model_selection, naive_bayes,
                      linear_model, ensemble, metrics)
 import xgboost as xgb
@@ -158,7 +160,13 @@ def model_ensemble_cv(models, Xtrain, ytrain, Xtest, cv=3, random_state=0):
     return scores_auc, x_test_pred_proba, x_train_pred_proba
     
 def xgb_ensemble_cv(param, n_rounds, N, Xtrain, ytrain, Xtest, weight,
-                    cv, random_state):
+                    cv, random_state, path_name):
+    """ CV ensemble with xgboost
+    """
+    # create directory to save data
+    if not os.path.exists(path_name):
+        os.mkdir(path_name)
+    
     np.random.seed(random_state)
     x_train_pred_proba = np.zeros((Xtrain.shape[0], N))
     x_test_pred_proba = np.zeros((Xtest.shape[0], N*cv))
@@ -189,7 +197,11 @@ def xgb_ensemble_cv(param, n_rounds, N, Xtrain, ytrain, Xtest, weight,
                 x_train_pred_proba[test_index, i])
             print 'CV repetition {} round {} finishes, AUC: {}'.format(i, k, 
                 scores_auc[i, k])
+            save_data('{}/test_pred_proba_cv{}_{}.pkl'.format(path_name, i, k), 
+                x_test_pred_proba[:, (i-1)*cv+k])
             k = k+1
+        save_data('{}/train_pred_proba_cv{}.pkl'.format(path_name, i), 
+            x_train_pred_proba[:,i])
             
     return scores_auc, x_test_pred_proba, x_train_pred_proba
             
@@ -212,6 +224,18 @@ def search_th(y_pred_proba, y_train, weight, n_steps):
         ams_v[i] = calc_ams(y_pred, y_train, weight, 1)
         
     return ams_v
+    
+def save_data(file_name, data):
+    """File name must ends with .pkl
+    """
+    with open(file_name, 'wb') as f:
+        pickle.dump(data, f, pickle.HIGHEST_PROTOCOL)
+        
+def read_data(file_name):
+    with open(file_name, 'rb') as f:
+        data = pickle.load(f)
+        
+    return data
     
 if __name__ == '__main__':
     np.random.seed(0)
