@@ -4,7 +4,10 @@ Created on Thu Oct 13 09:07:18 2016
 
 @author: lyaa
 
-max_depth = 6, eta = 0.1, n_roungs = 120: 3.63302
+3.63302: max_depth=6, eta=0.1, n_roungs=120
+3.71060: 10 repitition 2 fold CV with xgboost 
+    max_depth=9, eta=0.01, n_roungs=3000, sub_sample=0.9
+
 """
 
 from startKit2 import *
