@@ -34,7 +34,7 @@ if __name__ == '__main__':
     params['min_samples_split'] = [10, 30, 60, 100]
     fit_params = {'sample_weight':weight.as_matrix()}
     gridSearch = grid_search.RandomizedSearchCV(model, params, n_iter=100, 
-        scoring='roc_auc', cv=3, verbose=1, fit_params=fit_params, 
+        scoring='roc_auc', cv=3, verbose=10, fit_params=fit_params, 
         random_state=0)
     
     gridSearch.fit(x_train, y_train, )
