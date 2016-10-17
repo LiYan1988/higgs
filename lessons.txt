@@ -4,5 +4,7 @@
 4. XGBoost works very well: max_depth = 6, eta = 0.1, n_roungs = 120: AMS = 3.63302
 5. CV ensemble + xgboost, 10 repetition, 2 fold cv, xgboost parameters are the same as (4): AMS = 3.64216
 6. XGBoost: eta = 0.01, max_depth = 9, sub_sample = 0.9, num_rounds = 3000: AMS = 3.67944
-7. Increase the number of folds in CV ensemble works: 3 fold 10 repitition CV ensemble with xgboost, AMS = 3.72067
-8. CV ensemble + other models
+7. CV ensemble + XGBoost in (6), AMS = 3.71
+8. Increase the number of folds in CV ensemble works: 3 fold 10 repitition CV ensemble with xgboost, AMS = 3.72067
+9. Next step: ensemble other models
+
