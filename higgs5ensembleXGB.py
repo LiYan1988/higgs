@@ -37,7 +37,7 @@ if __name__ == '__main__':
     param['nthread'] = 8
     n_rounds = 3000
     N = 10
-    cv = 2
+    cv = 3
     random_state = 0
     
     scores_auc, x_test_pred_proba, x_train_pred_proba = \
