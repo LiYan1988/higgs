@@ -10,6 +10,7 @@ EXT: 3.34410
 from startKit2 import *
 import matplotlib.pyplot as plt
 import xgboost as xgb
+import os
 
 if __name__ == '__main__':
     np.random.seed(0)
@@ -35,15 +36,7 @@ if __name__ == '__main__':
         scoring='roc_auc', cv=3, verbose=10)
     
     gridSearch.fit(x_train, y_train)
-#    y_pred_proba = model.predict_proba(x_train)[:,1]
-#
-#    n_steps = 1000
-#    ams_v = search_th(y_pred_proba, y_train, weight, n_steps)
-#    plt.plot(ams_v)
-#    
-#    th_opt = 100.0*np.argmax(ams_v)/n_steps
-#    
-#    y_test_pred_proba = model.predict_proba(x_test)[:,1]
-#    y_test_pred = cut_ams(y_test_pred_proba, th_opt)
-#    save_submission(eventid_test, y_test_pred_proba, y_test_pred,
-#        '../EXT_submission.csv')
+    
+    if not os.path.exists('gridSearch'):
+        os.mkdir('gridSearch')
+    save_data('gridSearch/randomGridSearchEXT.pkl', gridSearch.grid_scores_)
