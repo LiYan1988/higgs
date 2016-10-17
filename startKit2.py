@@ -10,7 +10,7 @@ import numpy as np
 import math
 import copy
 from sklearn import (preprocessing, model_selection, naive_bayes,
-                     linear_model, ensemble, metrics)
+                     linear_model, ensemble, metrics, grid_search)
 import xgboost as xgb
 
 def load_data():
