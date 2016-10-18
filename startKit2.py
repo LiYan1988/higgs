@@ -125,38 +125,43 @@ def model_ensemble(models, Xtrain, ytrain, Xtest, cv=3, random_state=0,
     
     return ypred, scores
     
-def model_ensemble_cv(models, Xtrain, ytrain, Xtest, cv=3, random_state=0):
+def model_ensemble_cv(model, N, Xtrain, ytrain, Xtest, weight, cv, 
+                      random_state, path_name):
+    """CV ensemble with sklearn model
     """
-    """
-    x_train_pred_proba = np.zeros((Xtrain.shape[0], len(models)))
-    x_test_pred_proba = np.zeros((Xtest.shape[0], len(models)*cv))
-    scores_auc = np.zeros((len(models), cv))
-    for i, model in enumerate(models):
-        if type(random_state)==int:
-            rs = np.random.randint(10000)
-        else:
-            rs = random_state[i]
+    if not os.path.exists(path_name):
+        os.mkdir(path_name)
+        
+    np.random.seed(random_state)
+    x_train_pred_proba = np.zeros((Xtrain.shape[0], N))
+    x_test_pred_proba = np.zeros((Xtest.shape[0], N*cv))
+    scores_auc = np.zeros((N, cv))
+    for i in range(N):
+        rs = np.random.randint(10000)
         kf = model_selection.StratifiedKFold(n_splits=cv, shuffle=True,
             random_state=rs)
         k = 0
         for train_index, test_index in kf.split(Xtrain, ytrain):
-            model.fit(Xtrain.iloc[train_index,:], ytrain.iloc[train_index])
+            print 'CV repetition {} round {} begins...'.format(i, k)
+            
+            model.fit(Xtrain.iloc[train_index,:], ytrain.iloc[train_index],
+                sample_weight=weight.iloc[train_index].as_matrix())
+            
             x_train_pred_proba[test_index, i] = \
-                model.predict_proba(Xtrain.iloc[test_index, :])[:, 1]
+                model.predict_proba(Xtrain.iloc[test_index,:])[:, 1]
             x_test_pred_proba[:, (i-1)*cv+k] = \
                 model.predict_proba(Xtest)[:, 1]
             scores_auc[i, k] = metrics.roc_auc_score(ytrain.iloc[test_index], 
                 x_train_pred_proba[test_index, i])
+            
+            print 'CV repetition {} round {} finishes, AUC: {}'.format(i, k, 
+                scores_auc[i, k])
+            save_data('{}/test_pred_proba_cv{}_{}.pkl'.format(path_name, i, k), 
+                x_test_pred_proba[:, (i-1)*cv+k])
             k = k+1
-
-# Since the sizes of x_train_pred_proba and x_test_pred_proba are not the same,
-# this may be a problem
-#    if model_g is not None:
-#        model_g.fit(x_train_pred_proba, ytrain)
-#        ypred = model_g.predict(x_test_pred_proba) # or predict_proba?
-#    else:
-#        ypred = np.mean(x_test_pred, axis=1)
-#    
+        save_data('{}/train_pred_proba_cv{}.pkl'.format(path_name, i), 
+            x_train_pred_proba[:,i])
+            
     return scores_auc, x_test_pred_proba, x_train_pred_proba
     
 def xgb_ensemble_cv(param, n_rounds, N, Xtrain, ytrain, Xtest, weight,
