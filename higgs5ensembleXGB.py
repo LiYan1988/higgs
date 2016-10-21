@@ -19,8 +19,8 @@ if __name__ == '__main__':
     np.random.seed(0)
     x_train, y_train, weight, x_test, eventid_train, eventid_test = load_data()
 #    x_train, x_test, X = data_processing(x_train, x_test)
-    x_train = add_features(x_train)
-    x_test = add_features(x_test)
+#    x_train = add_features(x_train)
+#    x_test = add_features(x_test)
     
     train_mat = xgb.DMatrix(data=x_train, label=y_train, weight=weight)
     test_mat = xgb.DMatrix(data=x_test)

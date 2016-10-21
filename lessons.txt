@@ -6,5 +6,7 @@
 6. XGBoost: eta = 0.01, max_depth = 9, sub_sample = 0.9, num_rounds = 3000: AMS = 3.67944
 7. CV ensemble + XGBoost in (6), AMS = 3.71
 8. Increase the number of folds in CV ensemble works: 3 fold 10 repitition CV ensemble with xgboost, AMS = 3.72067
-9. Next step: ensemble other models
-
+9. CV ensemble other models doesn't give good results, for example EXT gives poor results
+10. Simply adding features to xgboost is not working, since the hyperparameters need to be retuned, the old parameters don't give good AMS
+11. Increase CV folds and repetitions will improve results: 5 folds and 12 repetitions give AMS=3.73819 on Private LB
+12. Try t-SNE and other ensemble methods from other competitions
